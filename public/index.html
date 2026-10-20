@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AccounTech Pro - Accounting & Invoice Bill Maintenance</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-100">
+          <i data-lucide="calculator" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="font-bold text-xl tracking-tight text-slate-900 flex items-center gap-2">
+            AccounTech <span class="bg-sky-100 text-sky-800 text-xs px-2 py-0.5 rounded-full font-semibold">Pro</span>
+          </span>
+          <p class="text-xs text-slate-500" id="headerCompanyName">Apex Financial Solutions</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center space-x-3">
+        <button onclick="openInvoiceModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-medium text-sm transition shadow-sm hover:shadow">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>New Invoice</span>
+        </button>
+        <button onclick="openBillModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-medium text-sm transition shadow-sm hover:shadow">
+          <i data-lucide="receipt" class="w-4 h-4"></i>
+          <span>Log Expense/Bill</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <div class="flex-1 flex max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 gap-6">
+
+    <!-- SIDEBAR NAV -->
+    <aside class="w-64 shrink-0 hidden md:block">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm sticky top-24 space-y-1">
+        <nav class="space-y-1" id="navLinks">
+          <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition text-sky-700 bg-sky-50">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Dashboard</span>
+          </button>
+          <button onclick="switchTab('invoices')" id="tab-btn-invoices" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+            <div class="flex items-center gap-3">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+              <span>Invoices & Billing</span>
+            </div>
+            <span id="badgeInvoiceCount" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">0</span>
+          </button>
+          <button onclick="switchTab('bills')" id="tab-btn-bills" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+            <div class="flex items-center gap-3">
+              <i data-lucide="credit-card" class="w-4 h-4"></i>
+              <span>Expenses & Bills</span>
+            </div>
+            <span id="badgeBillCount" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">0</span>
+          </button>
+          <button onclick="switchTab('parties')" id="tab-btn-parties" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Clients & Vendors</span>
+          </button>
+          <button onclick="switchTab('ledger')" id="tab-btn-ledger" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+            <span>General Ledger & Journals</span>
+          </button>
+          <button onclick="switchTab('reports')" id="tab-btn-reports" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+            <i data-lucide="pie-chart" class="w-4 h-4"></i>
+            <span>Financial Reports</span>
+          </button>
+          <div class="pt-4 mt-3 border-t border-slate-100">
+            <button onclick="switchTab('settings')" id="tab-btn-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 hover:bg-slate-100">
+              <i data-lucide="settings" class="w-4 h-4"></i>
+              <span>Company Settings</span>
+            </button>
+          </div>
+        </nav>
+
+        <!-- Quick Summary Mini Widget -->
+        <div class="mt-6 pt-4 border-t border-slate-100 bg-slate-50 p-3 rounded-xl">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Net Cash Position</p>
+          <p class="text-lg font-bold text-slate-900 mt-1" id="miniCashBalance">$0.00</p>
+          <div class="flex items-center justify-between text-xs text-slate-500 mt-2">
+            <span>Receivables:</span>
+            <span class="font-medium text-amber-600" id="miniReceivables">$0</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-500 mt-1">
+            <span>Payables:</span>
+            <span class="font-medium text-rose-600" id="miniPayables">$0</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="flex-1 overflow-x-hidden min-w-0">
+
+      <!-- ================= 1. TAB: DASHBOARD ================= -->
+      <section id="tab-dashboard" class="space-y-6">
+        <!-- Top KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Revenue -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-500 uppercase">Total Invoiced</span>
+              <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 mt-3" id="kpiRevenue">$0.00</h3>
+            <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+              <span class="text-emerald-600 font-semibold" id="kpiPaidRevenue">$0</span> collected
+            </p>
+          </div>
+
+          <!-- Expenses -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-500 uppercase">Total Expenses</span>
+              <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <i data-lucide="arrow-down-right" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 mt-3" id="kpiExpenses">$0.00</h3>
+            <p class="text-xs text-slate-500 mt-1">From vendor bills & costs</p>
+          </div>
+
+          <!-- Accounts Receivable -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-500 uppercase">Pending Invoices</span>
+              <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <h3 class="text-2xl font-bold text-amber-600 mt-3" id="kpiReceivables">$0.00</h3>
+            <p class="text-xs text-amber-700 mt-1" id="kpiOverdueCount">0 overdue</p>
+          </div>
+
+          <!-- Net Income / Profit -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-500 uppercase">Net Realized Profit</span>
+              <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <h3 class="text-2xl font-bold text-sky-700 mt-3" id="kpiNetIncome">$0.00</h3>
+            <p class="text-xs text-slate-500 mt-1">Collected Revenue - Paid Bills</p>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Revenue vs Expense Comparison -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="font-bold text-slate-900">Revenue vs. Expense Overview</h4>
+                <p class="text-xs text-slate-500">Comparison of billed income against business operating expenses</p>
+              </div>
+            </div>
+            <div class="h-64">
+              <canvas id="revExpenseChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Expense Category Breakdown -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="font-bold text-slate-900">Expense Breakdown</h4>
+                <p class="text-xs text-slate-500">Distribution by bill categories</p>
+              </div>
+            </div>
+            <div class="h-64 flex items-center justify-center">
+              <canvas id="expenseCategoryChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Invoices & Bills -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Recent Invoices -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+              <h4 class="font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="file-check" class="w-4 h-4 text-sky-600"></i>
+                Recent Invoices
+              </h4>
+              <button onclick="switchTab('invoices')" class="text-xs text-sky-600 hover:text-sky-700 font-semibold">View All &rarr;</button>
+            </div>
+            <div class="divide-y divide-slate-100" id="recentInvoicesList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Recent Bills -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+              <h4 class="font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="receipt" class="w-4 h-4 text-rose-600"></i>
+                Recent Bills & Expenses
+              </h4>
+              <button onclick="switchTab('bills')" class="text-xs text-sky-600 hover:text-sky-700 font-semibold">View All &rarr;</button>
+            </div>
+            <div class="divide-y divide-slate-100" id="recentBillsList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. TAB: INVOICES & BILLING ================= -->
+      <section id="tab-invoices" class="space-y-6 hidden">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h3 class="text-xl font-bold text-slate-900">Invoices & Billing Maintenance</h3>
+              <p class="text-xs text-slate-500">Create, track, record payments, and print client invoices</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="exportInvoicesCSV()" class="px-3 py-2 border border-slate-200 hover:bg-slate-50 rounded-lg text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                Export CSV
+              </button>
+              <button onclick="openInvoiceModal()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Create New Invoice
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters & Search -->
+          <div class="flex flex-col sm:flex-row gap-3 mb-4">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+              <input type="text" id="invoiceSearchInput" oninput="renderInvoices()" placeholder="Search invoice #, client name..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500">
+            </div>
+            <div class="flex gap-2">
+              <select id="invoiceStatusFilter" onchange="renderInvoices()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-700">
+                <option value="ALL">All Statuses</option>
+                <option value="Paid">Paid</option>
+                <option value="Partially Paid">Partially Paid</option>
+                <option value="Sent">Sent / Pending</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Invoices Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-100">
+            <table class="w-full text-left text-sm text-slate-600">
+              <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Invoice #</th>
+                  <th class="py-3 px-4">Client</th>
+                  <th class="py-3 px-4">Date</th>
+                  <th class="py-3 px-4">Due Date</th>
+                  <th class="py-3 px-4 text-right">Total</th>
+                  <th class="py-3 px-4 text-right">Balance Due</th>
+                  <th class="py-3 px-4 text-center">Status</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invoicesTableBody" class="divide-y divide-slate-100 font-medium">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. TAB: EXPENSES & BILLS ================= -->
+      <section id="tab-bills" class="space-y-6 hidden">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h3 class="text-xl font-bold text-slate-900">Expenses & Vendor Bills Maintenance</h3>
+              <p class="text-xs text-slate-500">Manage accounts payable, office overheads, software & logistics costs</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="exportBillsCSV()" class="px-3 py-2 border border-slate-200 hover:bg-slate-50 rounded-lg text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                Export CSV
+              </button>
+              <button onclick="openBillModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Log New Bill / Expense
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters & Search -->
+          <div class="flex flex-col sm:flex-row gap-3 mb-4">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+              <input type="text" id="billSearchInput" oninput="renderBills()" placeholder="Search bill #, vendor name, category..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500">
+            </div>
+            <div class="flex gap-2">
+              <select id="billCategoryFilter" onchange="renderBills()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-700">
+                <option value="ALL">All Categories</option>
+                <option value="Software & Hosting">Software & Hosting</option>
+                <option value="Rent & Facilities">Rent & Facilities</option>
+                <option value="Salaries & Payroll">Salaries & Payroll</option>
+                <option value="Office Supplies">Office Supplies</option>
+                <option value="Legal & Professional">Legal & Professional</option>
+                <option value="Marketing & Ads">Marketing & Ads</option>
+                <option value="Utilities">Utilities</option>
+              </select>
+              <select id="billStatusFilter" onchange="renderBills()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-700">
+                <option value="ALL">All Status</option>
+                <option value="Unpaid">Unpaid / Due</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Bills Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-100">
+            <table class="w-full text-left text-sm text-slate-600">
+              <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Bill #</th>
+                  <th class="py-3 px-4">Vendor</th>
+                  <th class="py-3 px-4">Category</th>
+                  <th class="py-3 px-4">Date</th>
+                  <th class="py-3 px-4">Due Date</th>
+                  <th class="py-3 px-4 text-right">Tax</th>
+                  <th class="py-3 px-4 text-right">Total</th>
+                  <th class="py-3 px-4 text-center">Status</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="billsTableBody" class="divide-y divide-slate-100 font-medium">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. TAB: CLIENTS & VENDORS ================= -->
+      <section id="tab-parties" class="space-y-6 hidden">
+        <!-- Sub-tabs for Clients vs Vendors -->
+        <div class="flex items-center justify-between">
+          <div class="flex bg-slate-200/70 p-1 rounded-xl">
+            <button onclick="setPartySubTab('clients')" id="subtab-btn-clients" class="px-4 py-2 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition">
+              Clients (Customers)
+            </button>
+            <button onclick="setPartySubTab('vendors')" id="subtab-btn-vendors" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition">
+              Vendors (Suppliers)
+            </button>
+          </div>
+          <button onclick="openPartyModal()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span id="btnAddPartyText">Add New Client</span>
+          </button>
+        </div>
+
+        <!-- Party Cards & Table -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="overflow-x-auto rounded-xl border border-slate-100">
+            <table class="w-full text-left text-sm text-slate-600">
+              <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Name & Contact</th>
+                  <th class="py-3 px-4">Tax / GST ID</th>
+                  <th class="py-3 px-4">Address / Phone</th>
+                  <th class="py-3 px-4 text-right">Total Billed</th>
+                  <th class="py-3 px-4 text-right">Outstanding</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="partiesTableBody" class="divide-y divide-slate-100 font-medium">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. TAB: GENERAL LEDGER & JOURNALS ================= -->
+      <section id="tab-ledger" class="space-y-6 hidden">
+        <!-- Chart of Accounts Summary -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-xl font-bold text-slate-900">Chart of Accounts</h3>
+              <p class="text-xs text-slate-500">Live balance of assets, liabilities, equity, revenues & expenses</p>
+            </div>
+            <button onclick="openJournalModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              New Journal Entry (Debit/Credit)
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" id="accountsGrid">
+            <!-- Account pills rendered here -->
+          </div>
+        </div>
+
+        <!-- Journal Entries Book -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-slate-900">Double-Entry Journal Logs</h4>
+              <p class="text-xs text-slate-500">Chronological ledger of debits and credits from invoices, bills and manual adjustments</p>
+            </div>
+          </div>
+
+          <div class="space-y-4" id="journalEntriesList">
+            <!-- Journal cards rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. TAB: FINANCIAL REPORTS ================= -->
+      <section id="tab-reports" class="space-y-6 hidden">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-slate-900">Accountant Financial Statements & Reports</h3>
+              <p class="text-xs text-slate-500">Real-time Profit & Loss, Tax/GST calculations, and Balance Sheet</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                Print Report
+              </button>
+            </div>
+          </div>
+
+          <!-- Report Selector -->
+          <div class="flex border-b border-slate-200 mb-6 gap-6">
+            <button onclick="setReportType('pnl')" id="rep-btn-pnl" class="pb-3 text-sm font-bold text-sky-600 border-b-2 border-sky-600 transition">
+              Profit & Loss (P&L) Statement
+            </button>
+            <button onclick="setReportType('tax')" id="rep-btn-tax" class="pb-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition">
+              Tax / GST Summary
+            </button>
+            <button onclick="setReportType('balance')" id="rep-btn-balance" class="pb-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition">
+              Balance Sheet Overview
+            </button>
+          </div>
+
+          <!-- Report Viewport -->
+          <div id="reportContainer">
+            <!-- Injected by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 7. TAB: SETTINGS ================= -->
+      <section id="tab-settings" class="space-y-6 hidden">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-xl font-bold text-slate-900 mb-1">Company & Billing Profile</h3>
+          <p class="text-xs text-slate-500 mb-6">Configure business legal details, invoice branding, currency and bank instructions</p>
+
+          <form id="settingsForm" onsubmit="saveCompanySettings(event)" class="space-y-4 max-w-2xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Company / Firm Name</label>
+                <input type="text" id="setCompanyName" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tax / GST Number</label>
+                <input type="text" id="setTaxId" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
+                <input type="email" id="setEmail" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Phone</label>
+                <input type="text" id="setPhone" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Business Address</label>
+                <input type="text" id="setAddress" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Currency Symbol</label>
+                <input type="text" id="setCurrency" placeholder="$ or ₹ or € or £" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Invoice Prefix</label>
+                <input type="text" id="setInvoicePrefix" placeholder="INV-2026-" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Bank Payment Details (Printed on Invoices)</label>
+                <textarea id="setBankDetails" rows="2" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Default Terms & Notes</label>
+                <textarea id="setPaymentTerms" rows="2" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+              </div>
+            </div>
+
+            <div class="pt-4 flex items-center justify-between">
+              <button type="submit" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-semibold transition shadow-sm">
+                Save Settings
+              </button>
+              <div class="flex items-center gap-3">
+                <a href="/api/backup" download class="px-3.5 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  Download JSON Backup
+                </a>
+                <button type="button" onclick="resetToSampleData()" class="px-3.5 py-2 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold transition">
+                  Reset Demo Data
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. INVOICE CREATION / EDIT MODAL -->
+  <div id="invoiceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900" id="invoiceModalTitle">Create Professional Invoice</h3>
+        <button onclick="closeInvoiceModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto flex-1 space-y-5">
+        <form id="invoiceForm">
+          <input type="hidden" id="invFormId">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Invoice Number</label>
+              <input type="text" id="invFormNumber" placeholder="Auto-generated" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-slate-50">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Client (Customer) *</label>
+              <div class="flex gap-2">
+                <select id="invFormClientSelect" required onchange="onInvoiceClientSelect()" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-sky-500">
+                  <!-- Populated dynamically -->
+                </select>
+                <button type="button" onclick="openPartyModal('client')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold whitespace-nowrap">
+                  + Add Client
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Issue Date</label>
+              <input type="date" id="invFormIssueDate" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Due Date</label>
+              <input type="date" id="invFormDueDate" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Initial Status</label>
+              <select id="invFormStatus" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white">
+                <option value="Draft">Draft</option>
+                <option value="Sent" selected>Sent</option>
+                <option value="Paid">Paid</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Line Items Table -->
+          <div class="mt-6">
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Line Items / Services</label>
+              <button type="button" onclick="addInvoiceItemRow()" class="text-xs text-sky-600 hover:text-sky-700 font-bold flex items-center gap-1">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Line Item
+              </button>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl overflow-hidden">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 uppercase font-semibold text-slate-500 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3 w-1/2">Description</th>
+                    <th class="py-2.5 px-2 w-20 text-center">Qty</th>
+                    <th class="py-2.5 px-2 w-28 text-right">Unit Rate</th>
+                    <th class="py-2.5 px-2 w-20 text-center">Tax %</th>
+                    <th class="py-2.5 px-3 w-28 text-right">Total</th>
+                    <th class="py-2.5 px-2 w-10 text-center"></th>
+                  </tr>
+                </thead>
+                <tbody id="invoiceItemsTableBody" class="divide-y divide-slate-100">
+                  <!-- Dynamic item rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Financial Calculation Totals -->
+          <div class="mt-4 flex flex-col sm:flex-row justify-between items-start gap-4">
+            <div class="w-full sm:w-1/2 space-y-2">
+              <label class="block text-xs font-bold text-slate-700 uppercase">Notes & Bank Payment Instructions</label>
+              <textarea id="invFormNotes" rows="3" placeholder="Thank you for your business. Payment via wire/bank transfer..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"></textarea>
+            </div>
+            <div class="w-full sm:w-72 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-sm">
+              <div class="flex justify-between text-slate-600">
+                <span>Subtotal:</span>
+                <span class="font-semibold text-slate-800" id="invCalcSubtotal">$0.00</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>Tax / GST:</span>
+                <span class="font-semibold text-slate-800" id="invCalcTax">$0.00</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-600">
+                <span>Discount:</span>
+                <input type="number" id="invFormDiscount" value="0" min="0" oninput="calculateInvoiceTotals()" class="w-24 text-right px-2 py-1 text-xs border border-slate-200 rounded-lg bg-white">
+              </div>
+              <div class="border-t border-slate-200 pt-2 flex justify-between text-base font-bold text-slate-900">
+                <span>Grand Total:</span>
+                <span id="invCalcGrandTotal" class="text-sky-700">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+        <button type="button" onclick="closeInvoiceModal()" class="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl transition">
+          Cancel
+        </button>
+        <button type="button" onclick="submitInvoiceForm()" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-xl shadow-sm transition">
+          Save Invoice
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. INVOICE PREVIEW & PRINT/PDF MODAL -->
+  <div id="printModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200">
+      <div class="p-4 border-b border-slate-100 flex items-center justify-between no-print">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-slate-800">Invoice Document View</span>
+          <span id="printModalStatus" class="px-2 py-0.5 text-xs rounded-full font-bold"></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            Print / Save PDF
+          </button>
+          <button onclick="closePrintModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-8 overflow-y-auto flex-1 print-area" id="invoicePrintTemplate">
+        <!-- Branded invoice layout injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. EXPENSE / BILL CREATION MODAL -->
+  <div id="billModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900">Record Vendor Bill / Operating Expense</h3>
+        <button onclick="closeBillModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="billForm" onsubmit="submitBillForm(event)" class="p-6 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Bill / Invoice Reference #</label>
+            <input type="text" id="billFormNumber" placeholder="BILL-2026-XXXX" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Vendor (Supplier)</label>
+            <input type="text" id="billFormVendor" required placeholder="e.g. AWS, Office Landlord, Stationery" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
+            <select id="billFormCategory" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white">
+              <option value="Software & Hosting">Software & Hosting</option>
+              <option value="Rent & Facilities">Rent & Facilities</option>
+              <option value="Salaries & Payroll">Salaries & Payroll</option>
+              <option value="Office Supplies">Office Supplies</option>
+              <option value="Legal & Professional">Legal & Professional</option>
+              <option value="Marketing & Ads">Marketing & Ads</option>
+              <option value="Utilities">Utilities</option>
+              <option value="General Operating">General Operating</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Payment Status</label>
+            <select id="billFormStatus" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white">
+              <option value="Unpaid">Unpaid / Accounts Payable</option>
+              <option value="Paid">Paid Immediately</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Bill Date</label>
+            <input type="date" id="billFormDate" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Due Date</label>
+            <input type="date" id="billFormDueDate" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Amount (Excl. Tax)</label>
+            <input type="number" step="0.01" id="billFormAmount" required placeholder="0.00" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tax / GST Paid</label>
+            <input type="number" step="0.01" id="billFormTax" value="0.00" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Description / Notes</label>
+            <input type="text" id="billFormNotes" placeholder="Details of purchased item or service" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+          <button type="button" onclick="closeBillModal()" class="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl transition">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 bg-slate-900 hover:bg-black text-white text-sm font-semibold rounded-xl shadow-sm transition">
+            Save Expense Bill
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. RECORD PAYMENT MODAL -->
+  <div id="paymentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900">Record Client Payment</h3>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="paymentForm" onsubmit="submitPaymentForm(event)" class="p-6 space-y-4">
+        <input type="hidden" id="payInvoiceId">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Invoice Reference</label>
+          <input type="text" id="payInvoiceNumber" readonly class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-slate-50 font-medium">
+        </div>
+        <div class="flex justify-between p-3 bg-sky-50 rounded-xl text-xs text-sky-900 font-medium">
+          <span>Remaining Balance Due:</span>
+          <span class="font-bold text-sm" id="payRemainingBalance">$0.00</span>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Payment Amount *</label>
+          <input type="number" step="0.01" id="payAmount" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Payment Date</label>
+          <input type="date" id="payDate" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Payment Mode</label>
+          <select id="payMethod" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white">
+            <option value="Bank Transfer">Bank Wire / ACH / Transfer</option>
+            <option value="Credit Card">Credit / Debit Card</option>
+            <option value="Cash">Cash</option>
+            <option value="UPI / Online">UPI / QR / Online Gateway</option>
+            <option value="Cheque">Cheque</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reference # / Transaction ID</label>
+          <input type="text" id="payReference" placeholder="e.g. TXN-9988221" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+          <button type="button" onclick="closePaymentModal()" class="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition">
+            Confirm Payment
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. PARTY (CLIENT / VENDOR) MODAL -->
+  <div id="partyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900" id="partyModalTitle">Add Client</h3>
+        <button onclick="closePartyModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="partyForm" onsubmit="submitPartyForm(event)" class="p-6 space-y-4">
+        <input type="hidden" id="partyType" value="client">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Business / Individual Name *</label>
+          <input type="text" id="partyName" required placeholder="e.g. Acme Tech Corporation" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Contact Person</label>
+            <input type="text" id="partyContact" placeholder="e.g. Jane Doe" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tax / GST Number</label>
+            <input type="text" id="partyTaxId" placeholder="e.g. GST-88220" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
+            <input type="email" id="partyEmail" placeholder="billing@client.com" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Phone</label>
+            <input type="text" id="partyPhone" placeholder="+1 (555) 000-0000" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Address</label>
+          <input type="text" id="partyAddress" placeholder="Full street address, city, country" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+          <button type="button" onclick="closePartyModal()" class="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-xl shadow-sm transition">
+            Save Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. JOURNAL ENTRY MODAL -->
+  <div id="journalModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Create Double-Entry Journal Entry</h3>
+          <p class="text-xs text-slate-500">Total debits must equal total credits</p>
+        </div>
+        <button onclick="closeJournalModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="journalForm" onsubmit="submitJournalForm(event)" class="p-6 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Entry Date</label>
+            <input type="date" id="journalDate" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reference / Doc #</label>
+            <input type="text" id="journalReference" placeholder="e.g. ADJ-001" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Description / Memo *</label>
+            <input type="text" id="journalDescription" required placeholder="e.g. Asset depreciation adjustment, Owner capital injection" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl">
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-slate-700 uppercase">Accounts & Amounts</label>
+            <button type="button" onclick="addJournalLine()" class="text-xs text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Account Line
+            </button>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 uppercase font-semibold text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Account</th>
+                  <th class="py-2.5 px-3 w-28 text-right">Debit</th>
+                  <th class="py-2.5 px-3 w-28 text-right">Credit</th>
+                  <th class="py-2.5 px-2 w-8"></th>
+                </tr>
+              </thead>
+              <tbody id="journalLinesBody" class="divide-y divide-slate-100">
+                <!-- Journal lines injected -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Balance Validation Banner -->
+          <div class="p-3 rounded-xl flex items-center justify-between text-xs font-medium" id="journalBalanceBanner">
+            <div class="flex gap-4">
+              <span>Total Debits: <strong id="journalTotalDebits">$0.00</strong></span>
+              <span>Total Credits: <strong id="journalTotalCredits">$0.00</strong></span>
+            </div>
+            <span id="journalBalanceStatus" class="font-bold text-rose-600">Debits and Credits must balance</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+          <button type="button" onclick="closeJournalModal()" class="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl">
+            Cancel
+          </button>
+          <button type="submit" id="btnSubmitJournal" disabled class="px-5 py-2 bg-indigo-600 disabled:opacity-50 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition">
+            Post Journal Entry
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-sm font-medium">
+    <i data-lucide="check-circle" id="toastIcon" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMsg">Operation successful</span>
+  </div>
+
+  <!-- Main JavaScript Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

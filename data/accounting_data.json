@@ -1,0 +1,387 @@
+{
+  "settings": {
+    "companyName": "Apex Financial Solutions & Tech Ltd.",
+    "email": "billing@apexsolutions.com",
+    "phone": "+1 (555) 234-5678",
+    "address": "Suite 400, 100 Financial Plaza, New York, NY 10005",
+    "taxId": "TAX-US-98765432",
+    "currency": "$",
+    "currencyCode": "USD",
+    "invoicePrefix": "INV-2026-",
+    "billPrefix": "BILL-2026-",
+    "bankDetails": "Chase Bank | A/C: 1234-5678-9012 | Routing: 021000021 | SWIFT: CHASUS33",
+    "paymentTermsNote": "Payment is due within 30 days of invoice date. Thank you for your business!"
+  },
+  "clients": [
+    {
+      "id": "cli-1",
+      "name": "Acme Global Technologies",
+      "contactPerson": "Sarah Jenkins",
+      "email": "sarah@acmeglobal.com",
+      "phone": "+1 (555) 019-2831",
+      "address": "742 Evergreen Terrace, Springfield, OR",
+      "taxId": "TAX-991201",
+      "notes": "Key enterprise client, net-30 terms",
+      "createdAt": "2026-09-25"
+    },
+    {
+      "id": "cli-2",
+      "name": "Nexus Retail Group",
+      "contactPerson": "David Miller",
+      "email": "dmiller@nexusretail.com",
+      "phone": "+1 (555) 432-8765",
+      "address": "125 Commerce Blvd, Chicago, IL",
+      "taxId": "TAX-445892",
+      "notes": "Monthly retainer contract",
+      "createdAt": "2026-09-25"
+    },
+    {
+      "id": "cli-3",
+      "name": "Horizon Design Studio",
+      "contactPerson": "Elena Rostova",
+      "email": "elena@horizondesign.io",
+      "phone": "+1 (555) 789-0123",
+      "address": "88 Market St, San Francisco, CA",
+      "taxId": "TAX-771239",
+      "notes": "Quarterly web & cloud consulting",
+      "createdAt": "2026-10-05"
+    }
+  ],
+  "vendors": [
+    {
+      "id": "ven-1",
+      "name": "AWS Cloud Infrastructure",
+      "contactPerson": "Enterprise Accounts",
+      "email": "billing@aws-cloud.com",
+      "phone": "+1 (800) 555-0199",
+      "address": "410 Terry Ave N, Seattle, WA",
+      "taxId": "VEN-TAX-101",
+      "category": "Software & Hosting",
+      "notes": "Server & DB hosting charges"
+    },
+    {
+      "id": "ven-2",
+      "name": "Metropolis Office Properties",
+      "contactPerson": "Building Management",
+      "email": "lease@metropolisprop.com",
+      "phone": "+1 (555) 234-9988",
+      "address": "100 Financial Plaza, New York, NY",
+      "taxId": "VEN-TAX-202",
+      "category": "Rent & Facilities",
+      "notes": "Monthly office lease"
+    },
+    {
+      "id": "ven-3",
+      "name": "OfficeDepot & Supplies Co.",
+      "contactPerson": "Order Support",
+      "email": "sales@officedepot-corp.com",
+      "phone": "+1 (800) 555-4321",
+      "address": "6600 North Military Trail, Boca Raton, FL",
+      "taxId": "VEN-TAX-303",
+      "category": "Office Supplies",
+      "notes": "Stationery and workstation equipment"
+    }
+  ],
+  "invoices": [
+    {
+      "id": "inv-101",
+      "invoiceNumber": "INV-2026-0001",
+      "clientId": "cli-1",
+      "clientName": "Acme Global Technologies",
+      "issueDate": "2026-09-25",
+      "dueDate": "2026-10-15",
+      "status": "Paid",
+      "items": [
+        {
+          "description": "Financial Architecture & ERP Setup",
+          "qty": 40,
+          "rate": 150,
+          "taxRate": 10,
+          "amount": 6000
+        },
+        {
+          "description": "Database Optimization & Migration",
+          "qty": 20,
+          "rate": 120,
+          "taxRate": 10,
+          "amount": 2400
+        }
+      ],
+      "subtotal": 8400,
+      "taxAmount": 840,
+      "discountAmount": 200,
+      "total": 9040,
+      "paidAmount": 9040,
+      "balanceDue": 0,
+      "payments": [
+        {
+          "id": "pay-1",
+          "date": "2026-10-05",
+          "amount": 9040,
+          "method": "Bank Transfer",
+          "reference": "WIRE-992102"
+        }
+      ],
+      "notes": "Completed setup milestone."
+    },
+    {
+      "id": "inv-102",
+      "invoiceNumber": "INV-2026-0002",
+      "clientId": "cli-2",
+      "clientName": "Nexus Retail Group",
+      "issueDate": "2026-10-05",
+      "dueDate": "2026-10-30",
+      "status": "Partially Paid",
+      "items": [
+        {
+          "description": "Monthly Financial Bookkeeping & Auditing",
+          "qty": 1,
+          "rate": 3500,
+          "taxRate": 10,
+          "amount": 3500
+        },
+        {
+          "description": "Quarterly Tax Preparation Service",
+          "qty": 1,
+          "rate": 1500,
+          "taxRate": 10,
+          "amount": 1500
+        }
+      ],
+      "subtotal": 5000,
+      "taxAmount": 500,
+      "discountAmount": 0,
+      "total": 5500,
+      "paidAmount": 2500,
+      "balanceDue": 3000,
+      "payments": [
+        {
+          "id": "pay-2",
+          "date": "2026-10-15",
+          "amount": 2500,
+          "method": "Credit Card",
+          "reference": "CC-AUTH-8821"
+        }
+      ],
+      "notes": "Part 1 retainer received. Remaining 3000 due next week."
+    },
+    {
+      "id": "inv-103",
+      "invoiceNumber": "INV-2026-0003",
+      "clientId": "cli-3",
+      "clientName": "Horizon Design Studio",
+      "issueDate": "2026-10-15",
+      "dueDate": "2026-11-09",
+      "status": "Sent",
+      "items": [
+        {
+          "description": "Corporate Tax Strategy & Payroll Advisory",
+          "qty": 15,
+          "rate": 175,
+          "taxRate": 10,
+          "amount": 2625
+        }
+      ],
+      "subtotal": 2625,
+      "taxAmount": 262.5,
+      "discountAmount": 0,
+      "total": 2887.5,
+      "paidAmount": 0,
+      "balanceDue": 2887.5,
+      "payments": [],
+      "notes": "Invoice delivered via email."
+    }
+  ],
+  "bills": [
+    {
+      "id": "bill-101",
+      "billNumber": "BILL-2026-0001",
+      "vendorId": "ven-1",
+      "vendorName": "AWS Cloud Infrastructure",
+      "category": "Software & Hosting",
+      "billDate": "2026-09-25",
+      "dueDate": "2026-10-15",
+      "status": "Paid",
+      "amount": 850,
+      "taxAmount": 85,
+      "total": 935,
+      "paidAmount": 935,
+      "balanceDue": 0,
+      "paymentMethod": "Credit Card",
+      "notes": "Cloud computing instances"
+    },
+    {
+      "id": "bill-102",
+      "billNumber": "BILL-2026-0002",
+      "vendorId": "ven-2",
+      "vendorName": "Metropolis Office Properties",
+      "category": "Rent & Facilities",
+      "billDate": "2026-10-05",
+      "dueDate": "2026-10-30",
+      "status": "Paid",
+      "amount": 3200,
+      "taxAmount": 0,
+      "total": 3200,
+      "paidAmount": 3200,
+      "balanceDue": 0,
+      "paymentMethod": "Bank Transfer",
+      "notes": "Main office rent"
+    },
+    {
+      "id": "bill-103",
+      "billNumber": "BILL-2026-0003",
+      "vendorId": "ven-3",
+      "vendorName": "OfficeDepot & Supplies Co.",
+      "category": "Office Supplies",
+      "billDate": "2026-10-15",
+      "dueDate": "2026-11-09",
+      "status": "Unpaid",
+      "amount": 450,
+      "taxAmount": 45,
+      "total": 495,
+      "paidAmount": 0,
+      "balanceDue": 495,
+      "paymentMethod": "Net-30",
+      "notes": "Printer ink, paper, ergonomic chairs"
+    }
+  ],
+  "journalEntries": [
+    {
+      "id": "je-1",
+      "entryNumber": "JE-2026-0001",
+      "date": "2026-09-25",
+      "description": "Invoice INV-2026-0001 to Acme Global Technologies",
+      "reference": "INV-2026-0001",
+      "lines": [
+        {
+          "accountCode": "1200",
+          "accountName": "Accounts Receivable",
+          "debit": 9040,
+          "credit": 0
+        },
+        {
+          "accountCode": "4000",
+          "accountName": "Sales & Professional Fees Revenue",
+          "debit": 0,
+          "credit": 8200
+        },
+        {
+          "accountCode": "2200",
+          "accountName": "Sales Tax / GST Output Payable",
+          "debit": 0,
+          "credit": 840
+        }
+      ]
+    },
+    {
+      "id": "je-2",
+      "entryNumber": "JE-2026-0002",
+      "date": "2026-10-05",
+      "description": "Payment received for INV-2026-0001",
+      "reference": "PAY-1",
+      "lines": [
+        {
+          "accountCode": "1000",
+          "accountName": "Cash & Bank Account",
+          "debit": 9040,
+          "credit": 0
+        },
+        {
+          "accountCode": "1200",
+          "accountName": "Accounts Receivable",
+          "debit": 0,
+          "credit": 9040
+        }
+      ]
+    },
+    {
+      "id": "je-3",
+      "entryNumber": "JE-2026-0003",
+      "date": "2026-10-05",
+      "description": "Office Rent Payment to Metropolis Office Properties",
+      "reference": "BILL-2026-0002",
+      "lines": [
+        {
+          "accountCode": "6100",
+          "accountName": "Rent & Facilities Expense",
+          "debit": 3200,
+          "credit": 0
+        },
+        {
+          "accountCode": "1000",
+          "accountName": "Cash & Bank Account",
+          "debit": 0,
+          "credit": 3200
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "code": "1000",
+      "name": "Cash & Operating Bank Account",
+      "type": "Asset",
+      "balance": 25340
+    },
+    {
+      "code": "1200",
+      "name": "Accounts Receivable (Clients)",
+      "type": "Asset",
+      "balance": 5887.5
+    },
+    {
+      "code": "1500",
+      "name": "Office Equipment & Computers",
+      "type": "Asset",
+      "balance": 14500
+    },
+    {
+      "code": "2000",
+      "name": "Accounts Payable (Vendors)",
+      "type": "Liability",
+      "balance": 495
+    },
+    {
+      "code": "2200",
+      "name": "Sales Tax / GST Output Payable",
+      "type": "Liability",
+      "balance": 1472.5
+    },
+    {
+      "code": "3000",
+      "name": "Owner's Equity & Retained Earnings",
+      "type": "Equity",
+      "balance": 35000
+    },
+    {
+      "code": "4000",
+      "name": "Sales & Professional Fees Revenue",
+      "type": "Revenue",
+      "balance": 16025
+    },
+    {
+      "code": "6000",
+      "name": "Software, Cloud & IT Services",
+      "type": "Expense",
+      "balance": 850
+    },
+    {
+      "code": "6100",
+      "name": "Rent & Facilities Expense",
+      "type": "Expense",
+      "balance": 3200
+    },
+    {
+      "code": "6200",
+      "name": "Salaries & Contractor Payroll",
+      "type": "Expense",
+      "balance": 6500
+    },
+    {
+      "code": "6300",
+      "name": "Office Supplies & Admin Expense",
+      "type": "Expense",
+      "balance": 450
+    }
+  ]
+}
